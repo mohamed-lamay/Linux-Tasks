@@ -1,0 +1,220 @@
+ADMIN 1 
+lab 1 :: 
+=========
+( Install Python 3.11.0 )
+((تحميل البايثون 3.11 احدث حاجة))
+
+1- جهزنا 2 ماشين واحده جي يو اي ووحده مينيمال 
+
+2- بندخل من ال جي يو اي ع المينمال 
+#ssh root@ip minimal 
+3- بنعمل ابديت للباكيدجس كلها 
+#yum update
+4-  هنجيب لينك الداونلود من موقع بايثون وننزله عندي 
+#wget https://www.python.org/ftp/python/3.11.0/Python-3.11.0.tar.xz
+5-هنفك الضغط بتاعه 
+#tar -xJf Python-3.11.0.tar.xz
+x= extract J= xz f= force
+6-***  عشان نخلي البايثون اوبتيمايزينج مع الاوبريتينج سيستم بتاعي  (تحسينات)
+وعشان لو فيه نسخ تانيه من البايثون هو بيقدر يفر مابينهم 
+ ./configure --enable-optimizations
+7-*** هننزل الباكيدج دي عشان يكمل معانا البايثون  
+#yum install openssl-devel bzip2-devel libffi-devel
+8- هنرن الكوماند عشان ناانستول 
+ #make install
+
+
+
+===============================================================
+lab 2 :: 
+=========
+( Install Wordpress )
+هنعمل ويب سايت صغير كده لوج للشركة بتاعتنا وهنشتغل ع الوورد بريس 
+
+1- هنجيب اللينك من الموقع الرسمي 
+wordpress.org 
+2-هنحمل 
+#wget https://wordpress.org/latest.zip 
+3-هنفك الضغط  هيطلع محتويات الملف في ملف اسمه ورد بريس
+#unzip latest.zip 
+#cd wordpress/
+4-هنسطب ويب سريفر اللي هو انجنكس
+#yum install nginx
+5- هنشغل السيرفيس تلقائي عند البوت 
+#systemctl enable nginx
+6-هنتاكد انه استارت معانا 
+#systemctl start nginx 
+7-هنوقف الفايروول 
+#systemctl stop firewalld
+#systemctl restart nginx
+هنوقف ال سي لينكس
+#vi /etc/selinux/config 
+SELINUX=disabled
+هروح البراوزر 
+192.168.10.159
+
+8-هنحتاج داتا بيز --  هنسطب ماريا داتابيز 
+#yum install mariadb-sever -y
+#systemctl enable mariadb
+#systemctl start mariadb
+
+كده جهزنا سيرفر شغال وداتابيز شغاله 
+9- هنسطب الماي سكويل 
+من بعد الباسورد كله نعم
+#mysql_secure_installation
+هننزل شوية باكيدجس عشان تشغل معانا الانتربرتر 
+#yum install php-mysqlnd php-fpm mariadb-server httpd tar curl php-json
+
+10- هنكرييت داتا بيز
+#mysql -u root -p
+هنعمل داتا بيز اسمها وورد بريس
+CREATE DATABASE wordpress;
+هنعمل يوزر ليه صلاحيات ع اللوكال هوست وباسورده وورد بريس
+CREATE USER 'wordpress'@'localhost' IDENTIFIED BY 'wordpress';
+كل البيرميشن على داتابيز اسمها ورد بريس ليوزر اسمه ورد بريس ع اللوكال هوست
+GRANT ALL ON wordpress.* TO 'wordpress'@'localhost';
+عشان يقرا التعديلات هنا 
+FLUSH PRIVILEGES;
+اقفل الداتابيز 
+exit
+
+
+11- هدخل في الفايل ده ملفات السريفر
+#cd /usr/share/nginx/html/
+12- هننسخ الفايل اللي نزلناه بتاع الورد بريس هنا 
+#cp /root/wordpress/ . -r
+13- هغير الاونرشيب ***
+chown nginx:nginx wordpress -R
+14- هغير البيرميشن 
+#chmod 755 *
+
+15- وبعدين ندخل ع اللينك 
+192.168.10.156/wordpress
+
+
+17- run the installation
+
+16-هعمل الكلام ده في فايل 
+
+#vi wp-config.php
+
+<?php
+/**
+ * The base configuration for WordPress
+ *
+ * The wp-config.php creation script uses this file during the installation.
+ * You don't have to use the web site, you can copy this file to "wp-config.php"
+ * and fill in the values.
+ *
+ * This file contains the following configurations:
+ *
+ * * Database settings
+ * * Secret keys
+ * * Database table prefix
+ * * ABSPATH
+ *
+ * @link https://wordpress.org/support/article/editing-wp-config-php/
+ *
+ * @package WordPress
+ */
+
+// ** Database settings - You can get this info from your web host ** //
+/** The name of the database for WordPress */
+define( 'DB_NAME', 'wordpress' );
+
+/** Database username */
+define( 'DB_USER', 'wordpress' );
+
+/** Database password */
+define( 'DB_PASSWORD', 'wordpress' );
+
+/** Database hostname */
+define( 'DB_HOST', 'localhost' );
+
+/** Database charset to use in creating database tables. */
+define( 'DB_CHARSET', 'utf8mb4' );
+
+/** The database collate type. Don't change this if in doubt. */
+define( 'DB_COLLATE', '' );
+
+/**#@+
+ * Authentication unique keys and salts.
+ *
+ * Change these to different unique phrases! You can generate these using
+ * the {@link https://api.wordpress.org/secret-key/1.1/salt/ WordPress.org secret-key service}.
+ *
+ * You can change these at any point in time to invalidate all existing cookies.
+ * This will force all users to have to log in again.
+ *
+ * @since 2.6.0
+ */
+define( 'AUTH_KEY',         'fW+Aiuf0$F90][rCYR+hv~{T/s|Uk$:yD.$3OqKag;}:iV[7iW{7;Z.hcZ?AZ. B' );
+define( 'SECURE_AUTH_KEY',  'AWa6Kb3N;zOfT8uc!&[Om~yf;P?TuzV69dqK,]>( !qs3rP>yBd:7}{WER^uii?W' );
+define( 'LOGGED_IN_KEY',    '&dvVjZrzC{)gubP=7:A/3NPiJ;Q=xt9n,#P*WJ}86vgp8{dMBV=f9s D;FfKY+(j' );
+define( 'NONCE_KEY',        '9/9jzZ!u$3cqcMLs,@h^ovPrlL6^|BLj#6d{V;};In0KXpiuPe(fGi[U(w ()C.]' );
+define( 'AUTH_SALT',        'fxd5}6m!18Dce;9-6uBdfKs4jczSDaDQb5Vg}R]9UqV85<z)i?s4,wAya6x8]h<D' );
+define( 'SECURE_AUTH_SALT', '~u(DeS}!HLCx5kQ(4r+o:uBfhkT.B^g_3%7LiQVNi#*Tk53Enl9zq!l`IM7KZQ,#' );
+define( 'LOGGED_IN_SALT',   '^D(<DuY*`Gsv||4[wDcse](tjw0ZQIc|cMc)I9:<yTY%dg egY*c%obN[*OwPP4q' );
+define( 'NONCE_SALT',       '12pDKlQs!E)p4W$!;P4;4H7Y~fRTzMx($};)6iNB-Ml:l>G8oKLIV]{N8FK<aG T' );
+
+/**#@-*/
+
+/**
+ * WordPress database table prefix.
+ *
+ * You can have multiple installations in one database if you give each
+ * a unique prefix. Only numbers, letters, and underscores please!
+ */
+$table_prefix = 'wp_';
+
+/**
+ * For developers: WordPress debugging mode.
+ *
+ * Change this to true to enable the display of notices during development.
+ * It is strongly recommended that plugin and theme developers use WP_DEBUG
+ * in their development environments.
+ *
+ * For information on other constants that can be used for debugging,
+ * visit the documentation.
+ *
+ * @link https://wordpress.org/support/article/debugging-in-wordpress/
+ */
+define( 'WP_DEBUG', false );
+
+/* Add any custom values between this line and the "stop editing" line. */
+
+
+
+/* That's all, stop editing! Happy publishing. */
+
+/** Absolute path to the WordPress directory. */
+if ( ! defined( 'ABSPATH' ) ) {
+	define( 'ABSPATH', __DIR__ . '/' );
+}
+
+/** Sets up WordPress vars and included files. */
+require_once ABSPATH . 'wp-settings.php';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
